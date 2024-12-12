@@ -1263,6 +1263,12 @@ bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const CBlockIndex* pindex
     return ReadRawBlockFromDisk(block, block_pos, message_start);
 }
 
+float RandomFloat(float min, float max) {
+
+	return ((float)rand() / RAND_MAX) * (max - min) + min;
+
+}
+
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
@@ -1270,9 +1276,19 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
     if (halvings >= 64)
         return 0;
 
-    CAmount nSubsidy = 50 * COIN;
+    CAmount nSubsidy = COIN_SUBSIDY;
+    
+    srand((unsigned) time(NULL));
+    float random = RandomFloat(0, 100);
+
     // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
     nSubsidy >>= halvings;
+
+    // 0.5% chance of getting the full subsidy amount if the reward subsidy amount is less than the original subsidy amount
+    if(halvings >= 1 && random <= 0.5){
+        return nSubsidy;
+    }
+
     return nSubsidy;
 }
 

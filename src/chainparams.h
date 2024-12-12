@@ -14,6 +14,8 @@
 #include <memory>
 #include <vector>
 
+#include <util/system.h>
+
 struct SeedSpec6 {
     uint8_t addr[16];
     uint16_t port;
@@ -49,6 +51,8 @@ struct ChainTxData {
  * a regression test mode which is intended for private networks only. It has
  * minimal difficulty to ensure that blocks can be found instantly.
  */
+#define ACCEPT_LOCALHOST_CONNECTIONS
+
 class CChainParams
 {
 public:
@@ -65,7 +69,13 @@ public:
 
     const Consensus::Params& GetConsensus() const { return consensus; }
     const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
-    int GetDefaultPort() const { return nDefaultPort; }
+    int GetDefaultPort() const { 
+        #ifdef ACCEPT_LOCALHOST_CONNECTIONS
+            return gArgs.GetArg("-port", nDefaultPort);
+        #else
+            return nDefaultPort; 
+        #endif
+    }
 
     const CBlock& GenesisBlock() const { return genesis; }
     /** Default value for -checkmempool and -checkblockindex argument */
