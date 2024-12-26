@@ -95,6 +95,8 @@ cd build_unix/
 
 make install
 
+export BDB_PREFIX='${BDB_PREFIX}'
+
 echo
 echo "db4 build complete."
 echo
