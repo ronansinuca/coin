@@ -190,6 +190,7 @@ bool LookupHost(const std::string& name, CNetAddr& addr, bool fAllowLookup)
     return true;
 }
 
+
 /**
  * Resolve a service string to its corresponding service.
  *

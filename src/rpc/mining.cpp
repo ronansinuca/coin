@@ -766,7 +766,7 @@ static RPCHelpMan getblocktemplate()
     pblock->nNonce = 0;
 
     // NOTE: If at some point we support pre-segwit miners post-segwit-activation, this needs to take segwit support into consideration
-    const bool fPreSegWit = (pindexPrev->nHeight + 1 < consensusParams.SegwitHeight);
+    const bool fPreSegWit = (pindexPrev->nHeight + 1 < 0);
 
     UniValue aCaps(UniValue::VARR); aCaps.push_back("proposal");
 

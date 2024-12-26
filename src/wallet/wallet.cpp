@@ -4206,6 +4206,7 @@ int CWalletTx::GetBlocksToMaturity() const
     if (!IsCoinBase() && !IsHogEx())
         return 0;
     int chain_depth = std::max(0, GetDepthInMainChain());
+ 
     if (IsCoinBase()) {
         return std::max(0, (COINBASE_MATURITY + 1) - chain_depth);
     } else {
