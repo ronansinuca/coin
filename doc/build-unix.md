@@ -18,6 +18,7 @@ To Build
 ---------------------
 
 ```bash
+./contrib/install_db4.sh ./
 ./autogen.sh
 ./configure
 make
