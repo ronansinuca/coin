@@ -106,5 +106,6 @@ echo "  export BDB_PREFIX='${BDB_PREFIX}'"
 
 export BDB_PREFIX='${BDB_PREFIX}'
 
+
 # shellcheck disable=SC2016
-echo '  ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --enable-tests=false...'
+echo '  ./configure BDB_LIBS="-L${BDB_PREFIX}/lib -ldb_cxx-4.8" BDB_CFLAGS="-I${BDB_PREFIX}/include" --enable-tests=false --enable-sse2 ...'
