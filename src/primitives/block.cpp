@@ -9,7 +9,9 @@
 #include <tinyformat.h>
 #include <util/strencodings.h>
 #include <crypto/common.h>
-#include <crypto/scrypt.h>
+#include <crypto/Keccak256.h>
+
+#define BEGIN2(a)            ((uint8_t*)&(a))
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -19,7 +21,7 @@ uint256 CBlockHeader::GetHash() const
 uint256 CBlockHeader::GetPoWHash() const
 {
     uint256 thash;
-    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+    Keccak256::getHash(BEGIN2(nVersion), 80, BEGIN2(thash));
     return thash;
 }
 

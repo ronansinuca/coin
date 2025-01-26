@@ -24,22 +24,23 @@
 
 #define GENESIS_FINDER
  
-#define GENESIS_BITS 0x1e0ffff0 // original
+#define GENESIS_BITS 0x1e0ffff0
 //#define GENESIS_BITS 0x1d00ffff
+//#define GENESIS_BITS 0x429aff
 
 #define GENESIS_VERSION 1
 
 #define MAIN_GENESIS_TIME_STAMP "2/Dec/2024 - No pain no gain"
 
-#define MAIN_GENESIS_TIME 1737856108
-#define MAIN_GENESIS_NONCE 938467
-#define MAIN_GENESIS_HASH "0x5ad7fe80ecebff4e1385ce81e5f7a679cd3a2b8c772cc60421967b3a35f2c65c"
+#define MAIN_GENESIS_TIME 1737931953
+#define MAIN_GENESIS_NONCE 697246
+#define MAIN_GENESIS_HASH "0x0deebd822b221a7beec055b80cecb949256f50b21bf8c6f899da1b7eef876061"
 #define MAIN_GENESIS_MERKLE_ROOT "0x0e2d71deb3c222550215e240c5b93b5438c3327f6a4904123e51c346dcb4b324"
 
 #define TEST_GENESIS_TIME_STAMP "2/Dec/2024 - No pain no gain"
-#define TEST_GENESIS_TIME 1737856108
-#define TEST_GENESIS_NONCE 938467
-#define TEST_GENESIS_HASH "0x5ad7fe80ecebff4e1385ce81e5f7a679cd3a2b8c772cc60421967b3a35f2c65c"
+#define TEST_GENESIS_TIME 1737931953
+#define TEST_GENESIS_NONCE 697246
+#define TEST_GENESIS_HASH "0x0deebd822b221a7beec055b80cecb949256f50b21bf8c6f899da1b7eef876061"
 #define TEST_GENESIS_MERKLE_ROOT "0x0e2d71deb3c222550215e240c5b93b5438c3327f6a4904123e51c346dcb4b324"
 
 
@@ -74,7 +75,7 @@ static void FindMainNetGenesisBlock(CBlock& block)
         uint256 hash = block.GetPoWHash(); 
         if (nNonce % 1000 == 0) {
             eraseLines(1);
-            std::cout << "Version: " << block.nVersion << " Nonce: " << nNonce << " Pow 0x" << hash.GetHex().c_str() << std::flush;
+            std::cout << "Nonce: " << nNonce << " Pow 0x" << hash.GetHex().c_str() << std::flush;
         }
         if (UintToArith256(hash) <= bnTarget) {
             block.hashMerkleRoot = BlockMerkleRoot(block);
@@ -142,6 +143,14 @@ int32_t percent(int32_t X, int32_t N){
     return ((X / 100) * N);
 }
 
+int32_t minutes(int32_t X){
+    return X * 60;
+}
+
+int32_t hours(int32_t X){
+    return X * 60 * 60;
+}
+
 /**
  * Main network
  */
@@ -152,9 +161,9 @@ public:
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
         consensus.nSubsidyHalvingInterval = 100000;
-        consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 8 * 60 * 60; // 8 hours
-        consensus.nPowTargetSpacing = 1 * 60; // 1 minute
+        consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); // 504365055 0x1e0fffff
+        consensus.nPowTargetTimespan = hours(6);
+        consensus.nPowTargetSpacing = minutes(1); 
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nMinerConfirmationWindow = consensus.nPowTargetTimespan / consensus.nPowTargetSpacing * 4;
@@ -177,6 +186,15 @@ public:
         consensus.nMinimumChainWork = uint256S("0x0");
         consensus.defaultAssumeValid = uint256S("0x0");
         
+        printf("powLimit: %u\n", UintToArith256(consensus.powLimit).GetCompact());
+        printf("powLimit: %x\n", UintToArith256(consensus.powLimit).GetCompact());
+
+        arith_uint256 bnTarget;
+        bnTarget.SetCompact(4365055);
+
+        printf("powLimit: 0x%s\n", bnTarget.GetHex().c_str());
+
+
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -194,6 +212,8 @@ public:
 
         genesis = CreateGenesisBlock(MAIN_GENESIS_TIME, MAIN_GENESIS_NONCE, MAIN_GENESIS_TIME_STAMP);
         consensus.hashGenesisBlock = genesis.GetHash();
+
+        printf("GetPoWHash: 0x%s\n", genesis.GetPoWHash().GetHex().c_str());
 
         if( consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH) || 
             genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT) ||
