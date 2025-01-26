@@ -14,6 +14,7 @@
 #include <versionbitsinfo.h>
 
 #include <assert.h>
+#include <key_io.h>
 
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
@@ -30,16 +31,16 @@
 
 #define MAIN_GENESIS_TIME_STAMP "2/Dec/2024 - No pain no gain"
 
-#define MAIN_GENESIS_TIME 1733172966
-#define MAIN_GENESIS_NONCE 996344
-#define MAIN_GENESIS_HASH "0xaaf450a4a105cc830845cec219192e2110eb1ef7b1c81be81b13a2bb90a004aa"
-#define MAIN_GENESIS_MERKLE_ROOT "0x40bc5b8ce737bd20aa5575bae277a00b1bf4f786f52eaf72dfb5b00cf7da80df"
+#define MAIN_GENESIS_TIME 1737856108
+#define MAIN_GENESIS_NONCE 938467
+#define MAIN_GENESIS_HASH "0x5ad7fe80ecebff4e1385ce81e5f7a679cd3a2b8c772cc60421967b3a35f2c65c"
+#define MAIN_GENESIS_MERKLE_ROOT "0x0e2d71deb3c222550215e240c5b93b5438c3327f6a4904123e51c346dcb4b324"
 
 #define TEST_GENESIS_TIME_STAMP "2/Dec/2024 - No pain no gain"
-#define TEST_GENESIS_TIME 1733172966
-#define TEST_GENESIS_NONCE 996344
-#define TEST_GENESIS_HASH "0xaaf450a4a105cc830845cec219192e2110eb1ef7b1c81be81b13a2bb90a004aa"
-#define TEST_GENESIS_MERKLE_ROOT "0x40bc5b8ce737bd20aa5575bae277a00b1bf4f786f52eaf72dfb5b00cf7da80df"
+#define TEST_GENESIS_TIME 1737856108
+#define TEST_GENESIS_NONCE 938467
+#define TEST_GENESIS_HASH "0x5ad7fe80ecebff4e1385ce81e5f7a679cd3a2b8c772cc60421967b3a35f2c65c"
+#define TEST_GENESIS_MERKLE_ROOT "0x0e2d71deb3c222550215e240c5b93b5438c3327f6a4904123e51c346dcb4b324"
 
 
 #if defined(GENESIS_FINDER)
@@ -71,9 +72,9 @@ static void FindMainNetGenesisBlock(CBlock& block)
         block.nNonce = nNonce;
 
         uint256 hash = block.GetPoWHash(); 
-        if (nNonce % 100 == 0) {
+        if (nNonce % 1000 == 0) {
             eraseLines(1);
-            std::cout << "Nonce: " << nNonce << " Pow 0x" << hash.GetHex().c_str() << std::flush;
+            std::cout << "Version: " << block.nVersion << " Nonce: " << nNonce << " Pow 0x" << hash.GetHex().c_str() << std::flush;
         }
         if (UintToArith256(hash) <= bnTarget) {
             block.hashMerkleRoot = BlockMerkleRoot(block);
@@ -84,6 +85,7 @@ static void FindMainNetGenesisBlock(CBlock& block)
             printf("   Pow: 0x%s\n", hash.GetHex().c_str());
             printf("  Time: %d\n", block.nTime);
             printf(" Nonce: %d\n", nNonce);
+            printf("  Bits: 0x%x\n", block.nBits);
             printf("  Hash: 0x%s\n", block.GetHash().GetHex().c_str());
             printf("Merkle: 0x%s\n", block.hashMerkleRoot.GetHex().c_str());
             printf("*******************************************************************\n\n");
@@ -111,6 +113,7 @@ static void FindMainNetGenesisBlock(CBlock& block)
  *     CTxOut(nValue=50.00000000, scriptPubKey=0x5F1DF16B2B704C8A578D0B)
  *   vMerkleTree: 4a5e1e
  */
+
 static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, const char* pszTimestamp)
 {
     const CScript genesisOutputScript = CScript() << ParseHex("040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9") << OP_CHECKSIG;
@@ -134,6 +137,7 @@ static CBlock CreateGenesisBlock(uint32_t nTime, uint32_t nNonce, const char* ps
     return genesis;
 }
 
+
 int32_t percent(int32_t X, int32_t N){
     return ((X / 100) * N);
 }
@@ -147,14 +151,15 @@ public:
         strNetworkID = CBaseChainParams::MAIN;
         consensus.signet_blocks = false;
         consensus.signet_challenge.clear();
-        consensus.nSubsidyHalvingInterval = 840000;
+        consensus.nSubsidyHalvingInterval = 100000;
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.nPowTargetTimespan = 2.5 * 24 * 60 * 60; // 2.5 days
-        consensus.nPowTargetSpacing = 1.5 * 60;
+        consensus.nPowTargetTimespan = 8 * 60 * 60; // 8 hours
+        consensus.nPowTargetSpacing = 1 * 60; // 1 minute
         consensus.fPowAllowMinDifficultyBlocks = false;
         consensus.fPowNoRetargeting = false;
         consensus.nMinerConfirmationWindow = consensus.nPowTargetTimespan / consensus.nPowTargetSpacing * 4;
-        consensus.nRuleChangeActivationThreshold = percent(90, consensus.nMinerConfirmationWindow );
+        consensus.nRuleChangeActivationThreshold = percent(95, consensus.nMinerConfirmationWindow );
+
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = Consensus::BIP9Deployment::NEVER_ACTIVE;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = Consensus::BIP9Deployment::NO_TIMEOUT;
@@ -169,9 +174,9 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_MWEB].nStartHeight = 0; // End Feb 2022
         consensus.vDeployments[Consensus::DEPLOYMENT_MWEB].nTimeoutHeight = 2427264; // 364 days later
 
-        consensus.nMinimumChainWork  = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");
-        consensus.defaultAssumeValid = uint256S("0x0000000000000000000000000000000000000000000000000000000000000000");//uint256S("0x80cdb35c080484df5bf384b311fde3c4694d3405765bc0f596e9eb369ff286e5"); // 2772730
-
+        consensus.nMinimumChainWork = uint256S("0x0");
+        consensus.defaultAssumeValid = uint256S("0x0");
+        
         /**
          * The message start string is designed to be unlikely to occur in normal data.
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
@@ -194,14 +199,24 @@ public:
             genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT) ||
             gArgs.GetBoolArg("-genesis", false))
         {
+            if(consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH))
+            {
+                printf("Invalid Hash \n");
+            }
+            if(genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT))
+            {
+                printf("Invalid hMerkleRoot \n");
+            }
 
             if(!gArgs.GetBoolArg("-genesis", false))
 		    {
                 printf("### Invalid Genesis Block found ### \n");
 		        printf("Generating it \n\n");
             }
+
             FindMainNetGenesisBlock(genesis);
         }
+
 
         #if defined(DEBUG_GENESIS)
             std::cout << std::endl;	
@@ -231,10 +246,10 @@ public:
         vSeeds.emplace_back("localhost:9102");
         vSeeds.emplace_back("localhost:9103");*/
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,48);
-        base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,5);
+        base58Prefixes[PUBKEY_ADDRESS]  = std::vector<unsigned char>(1,60); // R
+        base58Prefixes[SCRIPT_ADDRESS]  = std::vector<unsigned char>(1,5);
         base58Prefixes[SCRIPT_ADDRESS2] = std::vector<unsigned char>(1,50);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,176);
+        base58Prefixes[SECRET_KEY]      = std::vector<unsigned char>(1,176);
         base58Prefixes[EXT_PUBLIC_KEY] = {0x04, 0x88, 0xB2, 0x1E};
         base58Prefixes[EXT_SECRET_KEY] = {0x04, 0x88, 0xAD, 0xE4};
 

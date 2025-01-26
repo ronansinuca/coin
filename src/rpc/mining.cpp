@@ -146,10 +146,15 @@ static UniValue generateBlocks(ChainstateManager& chainman, const CTxMemPool& me
         nHeight = ::ChainActive().Height();
         nHeightEnd = nHeight+nGenerate;
     }
+
+    LogPrintf("GenerateBlocks(): height: %u HeightEnd: %u\n", nHeight, nHeightEnd);
+
     unsigned int nExtraNonce = 0;
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd && !ShutdownRequested())
     {
+        
+        LogPrintf("    height: %u\n", nHeight);
         std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(mempool, Params()).CreateNewBlock(coinbase_script));
         if (!pblocktemplate.get())
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
