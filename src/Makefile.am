@@ -474,9 +474,6 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/poly1305.cpp \
   crypto/ripemd160.cpp \
   crypto/ripemd160.h \
-  crypto/scrypt.cpp \
-  crypto/scrypt-sse2.cpp \
-  crypto/scrypt.h \
   crypto/Keccak256.h \
   crypto/Keccak256.cpp \
   crypto/sha1.cpp \
