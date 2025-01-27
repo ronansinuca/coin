@@ -11,7 +11,7 @@
 #include <crypto/common.h>
 #include <crypto/Keccak256.h>
 
-#define BEGIN2(a)            ((uint8_t*)&(a))
+#define UCHAR_PTR(a) ((unsigned char*)&(a))
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -21,7 +21,7 @@ uint256 CBlockHeader::GetHash() const
 uint256 CBlockHeader::GetPoWHash() const
 {
     uint256 thash;
-    Keccak256::getHash(BEGIN2(nVersion), 80, BEGIN2(thash));
+    Keccak256::getHash(UCHAR_PTR(nVersion), 80, UCHAR_PTR(thash));
     return thash;
 }
 

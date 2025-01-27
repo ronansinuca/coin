@@ -192,7 +192,7 @@ public:
         arith_uint256 bnTarget;
         bnTarget.SetCompact(4365055);
 
-        printf("powLimit: 0x%s\n", bnTarget.GetHex().c_str());
+        printf("new powLimit: 0x%s\n", bnTarget.GetHex().c_str());
 
 
         /**
@@ -209,6 +209,8 @@ public:
         nPruneAfterHeight = 100000;
         m_assumed_blockchain_size = 40;
         m_assumed_chain_state_size = 2;
+
+        //FindMainNetGenesisBlock(genesis);
 
         genesis = CreateGenesisBlock(MAIN_GENESIS_TIME, MAIN_GENESIS_NONCE, MAIN_GENESIS_TIME_STAMP);
         consensus.hashGenesisBlock = genesis.GetHash();
