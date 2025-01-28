@@ -10,6 +10,7 @@
 #include <crypto/common.h>
 #include <crypto/ripemd160.h>
 #include <crypto/sha256.h>
+#include <crypto/Keccak256.h>
 #include <prevector.h>
 #include <serialize.h>
 #include <uint256.h>
@@ -100,7 +101,7 @@ inline uint160 Hash160(const T1& in1)
 class CHashWriter
 {
 private:
-    CSHA256 ctx;
+    Keccak256 ctx;
 
     const int nType;
     const int nVersion;
@@ -122,7 +123,7 @@ public:
     uint256 GetHash() {
         uint256 result;
         ctx.Finalize(result.begin());
-        ctx.Reset().Write(result.begin(), CSHA256::OUTPUT_SIZE).Finalize(result.begin());
+        ctx.Reset().Write(result.begin(), Keccak256::OUTPUT_SIZE).Finalize(result.begin());
         return result;
     }
 
