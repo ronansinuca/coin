@@ -10,6 +10,8 @@
 #include <util/strencodings.h>
 #include <crypto/common.h>
 #include <crypto/scrypt.h>
+#include <crypto/keccak.h>
+#define UNSIGNED_CHAR_PTR(a) ((unsigned char*)&(a))
 
 uint256 CBlockHeader::GetHash() const
 {
@@ -19,7 +21,7 @@ uint256 CBlockHeader::GetHash() const
 uint256 CBlockHeader::GetPoWHash() const
 {
     uint256 thash;
-    scrypt_1024_1_1_256(BEGIN(nVersion), BEGIN(thash));
+    Keccak256(UNSIGNED_CHAR_PTR(nVersion), sizeof(CBlockHeader)/* 80 */, UNSIGNED_CHAR_PTR(thash));
     return thash;
 }
 
