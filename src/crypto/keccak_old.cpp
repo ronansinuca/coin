@@ -10,37 +10,33 @@
 #include <tinyformat.h>
 
 /// same as reset()
-template <unsigned int BITS>
-CKeccak<BITS>::CKeccak()
+CKeccak::CKeccak()
 {
     Reset();
 }
 
 /// restart
-template <unsigned int BITS>
-CKeccak<BITS>& CKeccak<BITS>::Reset()
+CKeccak& CKeccak::Reset()
 {
     m_data.empty();
     return *this;
 }
 
 /// add arbitrary number of bytes
-template <unsigned int BITS>
-CKeccak<BITS>& CKeccak<BITS>::Write(const uint8_t* data, size_t numBytes)
+CKeccak& CKeccak::Write(const uint8_t* data, size_t numBytes)
 {
     m_data.insert(m_data.end(), (unsigned char*)data, (unsigned char*)data + numBytes);
     return *this;
 }
 
 /// return latest hash as 16 hex characters
-template <unsigned int BITS>
-std::string CKeccak<BITS>::getHex()
+std::string CKeccak::getHex()
 {
     // convert hash to string
     static const char dec2hex[16 + 1] = "0123456789abcdef";
 
     // number of significant elements in hash (uint64_t)
-    unsigned int hashLength = OUTPUT_SIZE;// hash_len();
+    unsigned int hashLength = hash_len();
 
     std::vector<unsigned char> hash;
     Finalize(&hash);
@@ -57,7 +53,7 @@ std::string CKeccak<BITS>::getHex()
 }
 
 /* CKeccak256 */
-CKeccak<256>& CKeccak256::Finalize(unsigned char *hash)
+CKeccak& CKeccak256::Finalize(unsigned char *hash)
 {
     keccak_hash256 hash256 = hash_keccak256(m_data.data(), m_data.size());
     for (size_t i = 0; i < CKeccak256::OUTPUT_SIZE; i++)
@@ -67,7 +63,7 @@ CKeccak<256>& CKeccak256::Finalize(unsigned char *hash)
     return *this; 
 }
 
-CKeccak<256>& CKeccak256::Finalize(std::vector<unsigned char> *hash)
+CKeccak& CKeccak256::Finalize(std::vector<unsigned char> *hash)
 {
     keccak_hash256 hash256 = hash_keccak256(m_data.data(), m_data.size());
     for (size_t i = 0; i < CKeccak256::OUTPUT_SIZE; i++)
@@ -79,7 +75,7 @@ CKeccak<256>& CKeccak256::Finalize(std::vector<unsigned char> *hash)
 
 
 /* CKeccak512 */
-CKeccak<512>& CKeccak512::Finalize(unsigned char *hash)
+CKeccak& CKeccak512::Finalize(unsigned char *hash)
 {
     keccak_hash512 hash512 = hash_keccak512(m_data.data(), m_data.size());
     for (size_t i = 0; i < CKeccak512::OUTPUT_SIZE; i++)
@@ -89,7 +85,7 @@ CKeccak<512>& CKeccak512::Finalize(unsigned char *hash)
     return *this;  
 }
 
-CKeccak<512>& CKeccak512::Finalize(std::vector<unsigned char> *hash)
+CKeccak& CKeccak512::Finalize(std::vector<unsigned char> *hash)
 {
     keccak_hash512 hash512 = hash_keccak512(m_data.data(), m_data.size());
     for (size_t i = 0; i < CKeccak512::OUTPUT_SIZE; i++)
@@ -98,8 +94,6 @@ CKeccak<512>& CKeccak512::Finalize(std::vector<unsigned char> *hash)
     } 
     return *this;
 }
-
-
 
 void Keccak256(const uint8_t msg[], std::size_t len, uint8_t hashResult[CKeccak256::OUTPUT_SIZE])
 {

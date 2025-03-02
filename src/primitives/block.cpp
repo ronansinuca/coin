@@ -9,8 +9,8 @@
 #include <tinyformat.h>
 #include <util/strencodings.h>
 #include <crypto/common.h>
-#include <crypto/scrypt.h>
 #include <crypto/keccak.h>
+
 #define UNSIGNED_CHAR_PTR(a) ((unsigned char*)&(a))
 
 uint256 CBlockHeader::GetHash() const

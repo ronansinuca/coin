@@ -25,95 +25,106 @@ typedef unsigned __int64 uint64_t;
 
 /// compute CKeccak hash (designated SHA3)
 
-template<unsigned int BITS>
 class CKeccak //: public Hash
 {
-public:
-    static constexpr int OUTPUT_SIZE = BITS / 8;
 public:
     /// same as reset()
     explicit CKeccak();
 
     /// restart
-    CKeccak<BITS>& Reset();
+    CKeccak& Reset();
 
     /// add arbitrary number of bytes  
-    CKeccak<BITS>& Write(const uint8_t* data, size_t numBytes);
+    CKeccak& Write(const uint8_t* data, size_t numBytes);
 
-    CKeccak<BITS>& Write(std::vector<uint8_t> data)
+    CKeccak& Write(std::vector<uint8_t> data)
     {
         return Write(data.data(), data.size());
     }
 
-    CKeccak<BITS>& Write(Span<const uint8_t> data)
+    CKeccak& Write(Span<const uint8_t> data)
     {
         return Write(data.data(), data.size());
     }
 
-    CKeccak<BITS>& Write(std::string data)
+    CKeccak& Write(std::string data)
     {
         return Write((uint8_t*)data.c_str(), data.size());
     }
 
-    CKeccak<BITS>& Write(uint8_t data)
+    CKeccak& Write(uint8_t data)
     {
         return Write(&data, sizeof(data));
     }
 
-    CKeccak<BITS>& Write(uint16_t data)
+    CKeccak& Write(uint16_t data)
     {
         return Write((uint8_t*)&data, sizeof(data));
     }
 
-    CKeccak<BITS>& Write(uint32_t data)
+    CKeccak& Write(uint32_t data)
     {
         return Write((uint8_t*)&data, sizeof(data));
     }
 
-    CKeccak<BITS>& Write(uint64_t data)
+    CKeccak& Write(uint64_t data)
     {
         return Write((uint8_t*)&data, sizeof(data));
     }
 
-    CKeccak<BITS>& Write(float data)
+    CKeccak& Write(float data)
     {
         return Write((uint8_t*)&data, sizeof(data));
     }
 
-    CKeccak<BITS>& Write(uint256 data)
+    CKeccak& Write(uint256 data)
     {
         return Write(data.begin(), data.size());
     }
 
-    virtual CKeccak<BITS>& Finalize(unsigned char *hash) { return *this; }
-    virtual CKeccak<BITS>& Finalize(std::vector<unsigned char> *hash) { return *this; }
+    virtual CKeccak& Finalize(unsigned char *hash) { return *this; }
+    virtual CKeccak& Finalize(std::vector<unsigned char> *hash) { return *this; }
 
     /// return latest hash as hex characters
     std::string getHex();
 
     ///  return a length of data in bytes
     size_t Size() { return m_data.size(); }
-    int hash_len() { return BITS / 8; }
+    int hash_len() { return m_bits / 8; }
 
 protected:
     std::vector<u_int8_t> m_data;
+    /// variant
+    int m_bits;
 };
 
 
-class CKeccak256 : public CKeccak<256>
+class CKeccak256 : public CKeccak
 {
 public:
+    static constexpr int OUTPUT_SIZE = 32;
+    CKeccak256()
+    {
+        m_bits = 256;
+        Reset();
+    }
     
-    CKeccak<256>& Finalize(unsigned char *hash) override;
-    CKeccak<256>& Finalize(std::vector<unsigned char> *hash) override;
+    CKeccak& Finalize(unsigned char *hash) override;
+    CKeccak& Finalize(std::vector<unsigned char> *hash) override;
 };
 
-class CKeccak512 : public CKeccak<512>
+class CKeccak512 : public CKeccak
 {
 public:
+    static constexpr int OUTPUT_SIZE = 64;
+    CKeccak512()
+    {
+        m_bits = 512;
+        Reset();
+    }
     
-    CKeccak<512>& Finalize(unsigned char *hash) override;
-    CKeccak<512>& Finalize(std::vector<unsigned char> *hash) override;
+    CKeccak& Finalize(unsigned char *hash) override;
+    CKeccak& Finalize(std::vector<unsigned char> *hash) override;
 };
 
 /*
