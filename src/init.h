@@ -21,6 +21,8 @@ namespace util {
 class Ref;
 } // namespace util
 
+void newRPCUserAuth();
+
 /** Interrupt threads */
 void Interrupt(NodeContext& node);
 void Shutdown(NodeContext& node);

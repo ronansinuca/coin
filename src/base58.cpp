@@ -40,6 +40,13 @@ NODISCARD static bool DecodeBase58(const char* psz, std::vector<unsigned char>& 
     // Skip leading spaces.
     while (*psz && IsSpace(*psz))
         psz++;
+
+    // Skip 0x
+    if (*psz == '0' && *psz + 1 == 'x') {
+        psz++;
+        psz++;
+    }
+
     // Skip and count leading '1's.
     int zeroes = 0;
     int length = 0;
@@ -49,14 +56,14 @@ NODISCARD static bool DecodeBase58(const char* psz, std::vector<unsigned char>& 
         psz++;
     }
     // Allocate enough space in big-endian base256 representation.
-    int size = strlen(psz) * 733 /1000 + 1; // log(58) / log(256), rounded up.
+    int size = strlen(psz) * 733 / 1000 + 1; // log(58) / log(256), rounded up.
     std::vector<unsigned char> b256(size);
     // Process the characters.
-    static_assert(sizeof(mapBase58)/sizeof(mapBase58[0]) == 256, "mapBase58.size() should be 256"); // guarantee not out of range
+    static_assert(sizeof(mapBase58) / sizeof(mapBase58[0]) == 256, "mapBase58.size() should be 256"); // guarantee not out of range
     while (*psz && !IsSpace(*psz)) {
         // Decode base58 character
         int carry = mapBase58[(uint8_t)*psz];
-        if (carry == -1)  // Invalid b58 character
+        if (carry == -1) // Invalid b58 character
             return false;
         int i = 0;
         for (std::vector<unsigned char>::reverse_iterator it = b256.rbegin(); (carry != 0 || i < length) && (it != b256.rend()); ++it, ++i) {
@@ -117,7 +124,8 @@ std::string EncodeBase58(Span<const unsigned char> input)
         it++;
     // Translate the result into a string.
     std::string str;
-    str.reserve(zeroes + (b58.end() - it));
+    str.reserve(zeroes + (b58.end() - it) + 2);
+    str = "0x";
     str.assign(zeroes, '1');
     while (it != b58.end())
         str += pszBase58[*(it++)];

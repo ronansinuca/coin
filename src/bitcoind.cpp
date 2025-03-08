@@ -96,6 +96,8 @@ static bool AppInit(int argc, char* argv[])
             return false;
         }
 
+        newRPCUserAuth();
+
         // -server defaults to true for bitcoind but not for the GUI so do this here
         args.SoftSetBoolArg("-server", true);
         // Set this early so that parameter interactions go to console

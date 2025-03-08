@@ -470,8 +470,8 @@ crypto_libbitcoin_crypto_base_a_SOURCES = \
   crypto/hmac_sha256.h \
   crypto/hmac_sha512.cpp \
   crypto/hmac_sha512.h \
-  crypto/keccak_old.cpp \
-  crypto/keccak_old.h \
+  crypto/hmac_keccak256.cpp \
+  crypto/hmac_keccak256.h \
   crypto/keccak.cpp \
   crypto/keccak.h \
   crypto/keccak_hash.cpp \

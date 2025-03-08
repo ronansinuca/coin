@@ -75,6 +75,7 @@
 #include <sys/stat.h>
 #endif
 
+#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/signals2/signal.hpp>
 #include <boost/thread/thread.hpp>
@@ -85,6 +86,8 @@
 #include <zmq/zmqrpc.h>
 #endif
 
+#include <crypto/hmac_sha256.h>
+#include <crypto/hmac_keccak256.h>
 
 static bool fFeeEstimatesInitialized = false;
 static const bool DEFAULT_PROXYRANDOMIZE = true;
@@ -103,6 +106,43 @@ static const bool DEFAULT_STOPAFTERBLOCKIMPORT = false;
 static const char* FEE_ESTIMATES_FILENAME="fee_estimates.dat";
 
 static const char* DEFAULT_ASMAP_FILENAME="ip_asn.map";
+
+
+void newRPCUserAuth()
+{
+    std::string strRPCAuth = gArgs.GetArg("-newrpcauth", "");
+    if(!strRPCAuth.empty()){
+        std::vector<std::string> vFields;
+        boost::split(vFields, strRPCAuth, boost::is_any_of(":"));
+
+        if (vFields.size() != 2) {
+            //Incorrect formatting in config file
+            printf("Incorect params");
+            return;
+        }
+        std::string strName = vFields[0];
+        std::string strPass = vFields[1];
+
+        const size_t SALT_SIZE = 16;
+        unsigned char rand_pwd[SALT_SIZE];
+        GetRandBytes(rand_pwd, SALT_SIZE);        
+        std::string strSalt = HexStr(rand_pwd);
+     
+        static const unsigned int KEY_SIZE = 32;
+        unsigned char out[KEY_SIZE];
+
+        CHMAC_KECCAK256(reinterpret_cast<const unsigned char*>(strSalt.data()), strSalt.size()).Write(reinterpret_cast<const unsigned char*>(strPass.data()), strPass.size()).Finalize(out);
+        //CHMAC_SHA256(reinterpret_cast<const unsigned char*>(strSalt.data()), strSalt.size()).Write(reinterpret_cast<const unsigned char*>(strPass.data()), strPass.size()).Finalize(out);
+        std::vector<unsigned char> hexvec(out, out+KEY_SIZE);
+        std::string strHashFromPass = HexStr(hexvec);
+        
+        printf("*** RPC Auth ****\n");
+        printf("  Credential: %s:%s$%s\n", strName.c_str(), strSalt.c_str(), strHashFromPass.c_str());
+        printf("  Password: %s\n", strPass.c_str());
+        printf("*********************\n");
+        assert(false);
+    }
+}
 
 /**
  * The PID file facilities.
@@ -567,6 +607,7 @@ void SetupServerArgs(NodeContext& node)
     argsman.AddArg("-blockmintxfee=<amt>", strprintf("Set lowest fee rate (in %s/kB) for transactions to be included in block creation. (default: %s)", CURRENCY_UNIT, FormatMoney(DEFAULT_BLOCK_MIN_TX_FEE)), ArgsManager::ALLOW_ANY, OptionsCategory::BLOCK_CREATION);
     argsman.AddArg("-blockversion=<n>", "Override block version to test forking scenarios", ArgsManager::ALLOW_ANY | ArgsManager::DEBUG_ONLY, OptionsCategory::BLOCK_CREATION);
 
+    argsman.AddArg("-newrpcauth=<user:pw>", "Create Username and HMAC-KECCAK-256 hashed password for JSON-RPC connections. The result comes in the format: <USERNAME>:<SALT>$<HASH>", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::RPC);
     argsman.AddArg("-rest", strprintf("Accept public REST requests (default: %u)", DEFAULT_REST_ENABLE), ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     argsman.AddArg("-rpcallowip=<ip>", "Allow JSON-RPC connections from specified source. Valid for <ip> are a single IP (e.g. 1.2.3.4), a network/netmask (e.g. 1.2.3.4/255.255.255.0) or a network/CIDR (e.g. 1.2.3.4/24). This option can be specified multiple times", ArgsManager::ALLOW_ANY, OptionsCategory::RPC);
     argsman.AddArg("-rpcauth=<userpw>", "Username and HMAC-SHA-256 hashed password for JSON-RPC connections. The field <userpw> comes in the format: <USERNAME>:<SALT>$<HASH>. A canonical python script is included in share/rpcauth. The client then connects normally using the rpcuser=<USERNAME>/rpcpassword=<PASSWORD> pair of arguments. This option can be specified multiple times", ArgsManager::ALLOW_ANY | ArgsManager::SENSITIVE, OptionsCategory::RPC);

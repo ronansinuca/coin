@@ -21,7 +21,7 @@
 #include <key_io.h>
 #include "arith_uint256.h"
 
-//#include <crypto/keccak.h>
+#include <crypto/keccak.h>
 //#include <crypto/keccak_hash.h>
 
 #define GENESIS_FINDER
@@ -195,7 +195,6 @@ public:
         consensus.hashGenesisBlock = genesis.GetHash();
 
         /*printf("Keccak \n");
-        uint8_t hash[32];
 
         std::string data_str = "O MELHOR DE TRATO FEITO - Rick tem que comprar!";
         CKeccak256 h1;
