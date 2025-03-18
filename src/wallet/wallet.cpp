@@ -44,6 +44,10 @@
 
 using interfaces::FoundBlock;
 
+
+typedef std::map<std::string, CAmount> WalletMap;
+WalletMap g_wallet_ballances;
+
 const std::map<uint64_t,std::string> WALLET_FLAG_CAVEATS{
     {WALLET_FLAG_AVOID_REUSE,
         "You need to rescan the blockchain in order to correctly mark used "

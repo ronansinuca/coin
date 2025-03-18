@@ -1150,6 +1150,91 @@ static RPCHelpMan getblock()
     };
 }
 
+
+#include <key_io.h>
+
+void ScriptPubKeyToAddress(const CScript& scriptPubKey, UniValue& out)
+{
+    TxoutType type;
+    std::vector<CTxDestination> addresses;
+    int nRequired;
+
+    if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired) || type == TxoutType::PUBKEY) {
+        return;
+    }
+
+    for (const CTxDestination& addr : addresses) {
+        out.push_back(EncodeDestination(addr));
+    }
+}
+
+static RPCHelpMan getBallanceForAddress()
+{
+    return RPCHelpMan{"getBallanceForAddress", "",
+                {
+                    {"address", RPCArg::Type::STR_HEX, RPCArg::Optional::NO, "The block hash"},
+                },
+                RPCResult{
+                    RPCResult::Type::NUM, "", "balance of the address"},
+                RPCExamples{
+                    HelpExampleCli("getBallanceForAddress", "GXfuiMpNtQteiiythiUSKWrmDjLo9kjJPY")
+            + HelpExampleRpc("getBallanceForAddress", "GUBz9BJ35sssPfW6kHbpkZfjNoQAg5tgbN")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    CBlock block;
+    const CBlockIndex* pblockindex;
+    // const CBlockIndex* tip;
+
+    std::string address = request.params[0].get_str();
+    if (address == "")
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Address is empty.");
+
+    CAmount balance = 0;
+    CAmount pend_balance = 0;
+
+    BlockMap& map = g_chainman.BlockIndex();
+
+    for (auto it = map.begin(); it != map.end(); it++)
+    {
+        pblockindex = it->second;
+        if (!pblockindex) {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+        }
+        block = GetBlockChecked(pblockindex);
+
+        for(auto tx = block.vtx.begin(); tx != block.vtx.end(); tx++ )
+        {
+            for (const CTxOutput& output : tx.base()->get()->GetOutputs()) {
+           
+                const CTxOut& txout = output.GetTxOut();
+                UniValue o(UniValue::VARR);
+                ScriptPubKeyToAddress(txout.scriptPubKey, o);
+
+                for(size_t k = 0; k < o.size(); k++){
+                    if(o[k].get_str() == address){
+                        if (output.IsMWEB()) {
+                            //out.pushKV("output_id", output.ToMWEB().ToHex());
+                        } else {
+                            balance += txout.nValue;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+    UniValue result(UniValue::VOBJ);
+    
+    result.pushKV("balance", ValueFromAmount(balance));
+    result.pushKV("pend_balance", ValueFromAmount(pend_balance));
+
+    return result;
+
+},
+    };
+}
+
 static RPCHelpMan pruneblockchain()
 {
     return RPCHelpMan{"pruneblockchain", "",
@@ -2683,7 +2768,9 @@ static const CRPCCommand commands[] =
     { "hidden",             "waitforblockheight",     &waitforblockheight,     {"height","timeout"} },
     { "hidden",             "syncwithvalidationinterfacequeue", &syncwithvalidationinterfacequeue, {} },
     { "hidden",             "dumptxoutset",           &dumptxoutset,           {"path"} },
+    { "blockchain",         "getBallanceForAddress",  &getBallanceForAddress,  {"address"} },
 };
+
 // clang-format on
     for (const auto& c : commands) {
         t.appendCommand(c.name, &c);

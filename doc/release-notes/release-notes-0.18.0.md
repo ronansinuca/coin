@@ -585,7 +585,6 @@ Changes for particular platforms
 - #13967 Don't report `minversion` wallet entry as unknown (instagibbs)
 - #13988 Add checks for settxfee reasonableness (ajtowns)
 - #12559 Avoid locking `cs_main` in some wallet RPC (promag)
-- #13631 Add CMerkleTx::IsImmatureCoinBase method (Empact)
 - #14023 Remove accounts RPCs (jnewbery)
 - #13825 Kill accounts (jnewbery)
 - #10605 Add AssertLockHeld assertions in CWallet::ListCoins (ryanofsky)

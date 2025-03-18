@@ -237,26 +237,6 @@ struct COutputEntry
     OutputIndex index;
 };
 
-/** Legacy class used for deserializing vtxPrev for backwards compatibility.
- * vtxPrev was removed in commit 93a18a3650292afbb441a47d1fa1b94aeb0164e3,
- * but old wallet.dat files may still contain vtxPrev vectors of CMerkleTxs.
- * These need to get deserialized for field alignment when deserializing
- * a CWalletTx, but the deserialized values are discarded.**/
-class CMerkleTx
-{
-public:
-    template<typename Stream>
-    void Unserialize(Stream& s)
-    {
-        CTransactionRef tx;
-        uint256 hashBlock;
-        std::vector<uint256> vMerkleBranch;
-        int nIndex;
-
-        s >> tx >> hashBlock >> vMerkleBranch >> nIndex;
-    }
-};
-
 //Get the marginal bytes of spending the specified output
 int CalculateMaximumSignedInputSize(const CTxOut& txout, const CWallet* pwallet, bool use_max_sig = false);
 
@@ -415,12 +395,10 @@ public:
             mapValueCopy["mweb_info"] = mweb_wtx_info->ToHex();
         }
 
-        std::vector<char> dummy_vector1; //!< Used to be vMerkleBranch
-        std::vector<char> dummy_vector2; //!< Used to be vtxPrev
         bool dummy_bool = false; //!< Used to be fSpent
         uint256 serializedHash = isAbandoned() ? ABANDON_HASH : m_confirm.hashBlock;
         int serializedIndex = isAbandoned() || isConflicted() ? -1 : m_confirm.nIndex;
-        s << tx << serializedHash << dummy_vector1 << serializedIndex << dummy_vector2 << mapValueCopy << vOrderForm << fTimeReceivedIsTxTime << nTimeReceived << fFromMe << dummy_bool;
+        s << tx << serializedHash << serializedIndex << mapValueCopy << vOrderForm << fTimeReceivedIsTxTime << nTimeReceived << fFromMe << dummy_bool;
     }
 
     template<typename Stream>
@@ -428,11 +406,9 @@ public:
     {
         Init();
 
-        std::vector<uint256> dummy_vector1; //!< Used to be vMerkleBranch
-        std::vector<CMerkleTx> dummy_vector2; //!< Used to be vtxPrev
         bool dummy_bool; //! Used to be fSpent
         int serializedIndex;
-        s >> tx >> m_confirm.hashBlock >> dummy_vector1 >> serializedIndex >> dummy_vector2 >> mapValue >> vOrderForm >> fTimeReceivedIsTxTime >> nTimeReceived >> fFromMe >> dummy_bool;
+        s >> tx >> m_confirm.hashBlock >> serializedIndex >> mapValue >> vOrderForm >> fTimeReceivedIsTxTime >> nTimeReceived >> fFromMe >> dummy_bool;
 
         /* At serialization/deserialization, an nIndex == -1 means that hashBlock refers to
          * the earliest block in the chain we know this or any in-wallet ancestor conflicts

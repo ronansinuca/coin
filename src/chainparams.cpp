@@ -210,6 +210,9 @@ public:
 
         assert(false);*/
 
+        std::map<char,u_int64_t> s;
+        printf("Maximum size of a 'map' is %u\n" , s.max_size());
+
         if( consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH) || 
             genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT) )
         {

@@ -474,7 +474,6 @@ Build system changes
 - #16399 Improve wallet creation (fjahr)
 - #16475 Enumerate walletdb keys (MarcoFalke)
 - #15709 Do not add "setting" key as unknown (Bushstar)
-- #16451 Remove CMerkleTx (jnewbery)
 - #15906 Move min_depth and max_depth to coin control (amitiuttarwar)
 - #16502 Drop unused OldKey (promag)
 - #16394 Allow createwallet to take empty passwords to make unencrypted wallets (achow101)

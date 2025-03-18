@@ -41,12 +41,6 @@ NODISCARD static bool DecodeBase58(const char* psz, std::vector<unsigned char>& 
     while (*psz && IsSpace(*psz))
         psz++;
 
-    // Skip 0x
-    if (*psz == '0' && *psz + 1 == 'x') {
-        psz++;
-        psz++;
-    }
-
     // Skip and count leading '1's.
     int zeroes = 0;
     int length = 0;
@@ -124,8 +118,7 @@ std::string EncodeBase58(Span<const unsigned char> input)
         it++;
     // Translate the result into a string.
     std::string str;
-    str.reserve(zeroes + (b58.end() - it) + 2);
-    str = "0x";
+    str.reserve(zeroes + (b58.end() - it));
     str.assign(zeroes, '1');
     while (it != b58.end())
         str += pszBase58[*(it++)];
