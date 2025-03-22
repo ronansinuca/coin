@@ -210,26 +210,28 @@ public:
 
         assert(false);*/
 
-        std::map<char,u_int64_t> s;
-        printf("Maximum size of a 'map' is %u\n" , s.max_size());
+        #if defined(GENESIS_FINDER)
+            std::map<char,u_int64_t> s;
+            printf("Maximum size of a 'map' is %u\n" , s.max_size());
 
-        if( consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH) || 
-            genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT) )
-        {
-            if(consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH))
+            if( consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH) || 
+                genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT) )
             {
-                printf("Invalid Hash \n");
-            }
-            if(genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT))
-            {
-                printf("Invalid hMerkleRoot \n");
-            }
+                if(consensus.hashGenesisBlock != uint256S(MAIN_GENESIS_HASH))
+                {
+                    printf("Invalid Hash \n");
+                }
+                if(genesis.hashMerkleRoot != uint256S(MAIN_GENESIS_MERKLE_ROOT))
+                {
+                    printf("Invalid hMerkleRoot \n");
+                }
 
-            printf("### Invalid Genesis Block found ### \n");
-		    printf("Generating it \n\n");
+                printf("### Invalid Genesis Block found ### \n");
+                printf("Generating it \n\n");
 
-            FindMainNetGenesisBlock(genesis);
-        }
+                FindMainNetGenesisBlock(genesis);
+            }
+        #endif
 
         #if defined(DEBUG_GENESIS)
             std::cout << std::endl;	

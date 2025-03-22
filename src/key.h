@@ -97,6 +97,7 @@ public:
 
     //! Generate a new private key using a cryptographic PRNG.
     void MakeNewKey(bool fCompressed);
+    bool MakeNewKeyFromMnemonic(const unsigned char* words, bool fCompressedIn);
 
     //! Negate private key
     bool Negate();

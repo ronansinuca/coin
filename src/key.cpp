@@ -162,6 +162,18 @@ void CKey::MakeNewKey(bool fCompressedIn) {
     fCompressed = fCompressedIn;
 }
 
+bool CKey::MakeNewKeyFromMnemonic(const unsigned char* words, bool fCompressedIn) {
+
+    CSHA256 sha;
+    sha.Write(words, strlen((char*)words));
+    sha.Finalize(keydata.data());
+
+    if(!Check(keydata.data())) return false;
+    fValid = true;
+    fCompressed = fCompressedIn;
+    return true;
+}
+
 bool CKey::Negate()
 {
     assert(fValid);
